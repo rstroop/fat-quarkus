@@ -1,0 +1,116 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <title>Quarkus Combo service</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/wingcss/0.1.8/wing.min.css"/>
+    <!-- Load AngularJS -->
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+    <script type="text/javascript">
+      var app = angular.module("ComboManagement", []);
+ 
+      //Controller Part
+      app.controller("ComboManagementController", function ($scope, $http) {
+ 
+        //Initialize page with empty data
+        $scope.combos = [];
+ 
+        $scope.form = {
+          id: "",
+          combo1: "",
+          combo2: "",
+          combo3: "",
+          secret: ""
+        };
+ 
+        //Now load the data from server
+        _refreshPageData();
+ 
+        //HTTP POST methods for add data
+        $scope.add = function () {
+          var data = { "id": $scope.form.id, "combo1": $scope.form.combo1, "combo2": $scope.form.combo2, "combo3": $scope.form.combo3, "secret": $scope.form.secret };
+ 
+          $http({
+            method: "POST",
+            url: '/combo',
+            data: angular.toJson(data),
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          }).then(_success, _error);
+        };
+ 
+ 
+        //HTTP GET- get all persons collection
+        function _refreshPageData() {
+          $http({
+            method: 'GET',
+            url: '/combo'
+          }).then(function successCallback(response) {
+            $scope.combos = response.data;
+          }, function errorCallback(response) {
+            console.log(response.statusText);
+          });
+        }
+ 
+        function _success(response) {
+          _refreshPageData();
+          _clearForm();
+        }
+ 
+        function _error(response) {
+          alert(response.data.message || response.statusText);
+        }
+ 
+        //Clear the form
+        function _clearForm() {
+          $scope.form.id = "";
+          $scope.form.combo1 = "";
+          $scope.form.combo2 = "";
+          $scope.form.combo3 = "";
+          $scope.form.secret = "";
+        }
+      });
+    </script>
+</head>
+<body ng-app="ComboManagement" ng-controller="ComboManagementController">
+ 
+<div class="container">
+    <h1>Quarkus Combo Service</h1>
+ 
+    <form ng-submit="add()">
+        <div class="row">
+            <div class="col-3"><input type="text" placeholder="ID" ng-model="form.id" size="20"/></div>
+        </div>
+        <div class="row">
+            <div class="col-2"><input type="text" placeholder="Combo1" ng-model="form.combo1" size="2"/></div>
+
+            <div class="col-2"><input type="text" placeholder="Combo2" ng-model="form.combo2" size="2"/></div>
+
+            <div class="col-2"><input type="text" placeholder="Combo3" ng-model="form.combo3" size="2"/></div>
+        </div>
+        <div class="row">
+            <div class="col-6"><input type="text" placeholder="Secret" ng-model="form.secret" size="40"/></div>
+        </div>
+        <input type="submit" value="Save"/>
+    </form>
+ 
+    <h3>Combo List</h3>
+    <div class="row">
+        <div class="col-3">Id</div>
+        <div class="col-1">Combo1</div>
+        <div class="col-1">Combo2</div>
+        <div class="col-1">Combo3</div>
+        <div class="col-4">Secret</div>
+    </div>
+    <div class="row" ng-repeat="combo in combos">
+        <div class="col-3">{{ combo.id }}</div>
+        <div class="col-1">{{ combo.combo1 }}</div>
+        <div class="col-1">{{ combo.combo2 }}</div>
+        <div class="col-1">{{ combo.combo3 }}</div>
+        <div class="col-4">{{ combo.secret }}</div>
+    </div>
+</div>
+
+</body>
+</html>
